@@ -4,8 +4,8 @@
 class Point
 {
 public:
-	Point(uint8_t x, uint8_t y);
-	Point(uint8_t x, uint8_t y, Type type, uint8_t step);
+	Point(position pos);
+	Point(position pos, Type type, uint8_t step);
 
 	~Point();
 
@@ -18,14 +18,16 @@ public:
 	void setStep(uint8_t step);
 	uint8_t getStep();
 
+	position get_pos();
+
 	void resetPiece();
+
 
 private:
 	Type belong_ = Type::empty;
 	Type type_ = Type::empty;
 	uint8_t step_ = 0;
 
-	uint8_t x_ = 0;
-	uint8_t y_ = 0;
+	position pos_;
 };
 
