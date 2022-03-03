@@ -18,7 +18,8 @@ public:
 	void setStep(uint8_t step);
 	uint8_t getStep();
 
-	position get_pos();
+	void setPos(position pos);
+	position getPos();
 
 	void resetPiece();
 

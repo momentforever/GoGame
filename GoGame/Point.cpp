@@ -40,7 +40,11 @@ uint8_t Point::getStep() {
 	return step_;
 }
 
-position Point::get_pos() {
+void Point::setPos(position pos) {
+	pos_ =pos;
+}
+
+position Point::getPos() {
 	return pos_;
 }
 
@@ -48,8 +52,6 @@ void Point::resetPiece() {
 	belong_ = Type::empty;
 	type_ = Type::empty;
 	step_ = 0;
-	pos_.x = 0;
-	pos_.y = 0;
 }
 
 

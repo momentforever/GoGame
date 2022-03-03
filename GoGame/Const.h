@@ -2,12 +2,14 @@
 #include <iostream>
 #include "Const.h"
 
-#define ERROR 1
-#define SUCCESS 0
+#define ERROR_ 0
+#define SUCCESS_ 1  
 
 
-#define TRUE 0
-#define FALSE 1
+#define TRUE_ 0
+#define FALSE_ 1
+
+#define PI 3.1415926
 
 enum class Type
 {
@@ -18,6 +20,11 @@ enum class Type
 
 struct position
 {
-	uint8_t x = 0;
-	uint8_t y = 0;
+	position() {}
+	position(float x, float y) {
+		x_ = x;
+		y_ = y;
+	}
+	float x_ = 0;
+	float y_ = 0;
 };

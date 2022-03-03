@@ -5,6 +5,20 @@ Checkerboard::Checkerboard(uint8_t length, Type now_color) {
 	step_count_ = 0;
 	now_color_ = now_color;
 	length_ = length;
+
+	float x_p = -(length_ / 2 * spacing_);
+	float y_p = length_ / 2 * spacing_;
+
+	for (int y = 0; y < length_; ++y) {
+		y_p = length_ / 2 * spacing_;
+		for (int x = 0; x < length_; ++x) {
+			// 特别 : 需要转换 x y 坐标系
+			grid_[y][x].setPos(position(x_p, y_p));
+			y_p -= spacing_;
+		}
+		x_p += spacing_;
+	}
+
 }
 
 Checkerboard::~Checkerboard() {
@@ -17,17 +31,17 @@ int Checkerboard::placePiece(uint8_t x, uint8_t y, Type type) {
 
 	// 超出范围
 	if (x > length_ - 1 || y > length_ - 1) {
-		return ERROR;
+		return ERROR_;
 	}
 	// 还没到回合
 	if (type != now_color_) {
-		return ERROR;
-	}
-	// 这个地方已经有子
-	if (grid_[x][y].getStep() != 0) {
-		return ERROR;
+		return ERROR_;
 	}
 
+	// 这个地方已经有子
+	if (grid_[x][y].getStep() != 0) {
+		return ERROR_;
+	}
 
 	grid_[x][y].setStep(step_count_);
 	grid_[x][y].setType(type);
@@ -35,8 +49,8 @@ int Checkerboard::placePiece(uint8_t x, uint8_t y, Type type) {
 	removePiece(x, y, type);
 
 	// 不允许被放置
-	if (notAllowToBePlaced(x, y, type) == FALSE) {
-		return ERROR;
+	if (notAllowToBePlaced(x, y, type) == FALSE_) {
+		return ERROR_;
 	}
 
 	//更新状态
@@ -44,12 +58,12 @@ int Checkerboard::placePiece(uint8_t x, uint8_t y, Type type) {
 	++step_count_;
 	chess.push(grid_);
 
-	return SUCCESS;
+	return SUCCESS_;
 }
 
 int Checkerboard::regretPiece(Type type) {
 	if (chess.empty() == true) {
-		return ERROR;
+		return ERROR_;
 	}
 	int count;
 	if (now_color_ == type) {
@@ -69,7 +83,7 @@ int Checkerboard::regretPiece(Type type) {
 	else {
 		grid_ = chess.top();
 	}
-	return SUCCESS;
+	return SUCCESS_;
 }
 
 void Checkerboard::resetCheckerboard(uint8_t length, Type now_color) {
@@ -90,67 +104,65 @@ int Checkerboard::notAllowToBePlaced(int x, int y, Type type) {
 
 	recursion_judgeAliveOrDead(x, y, &grid_memory, &life_value);
 	if (life_value == 0) {
-		return FALSE;
+		return FALSE_;
 	}
-	return TRUE;
+	return TRUE_;
 }
 
 int Checkerboard::removePiece(int x, int y, Type type) {
 	uint8_t life_value;
-	vector<vector<bool>> grid_memory(length_, vector<bool>(length_, false));
+	vector<vector<bool>> *grid_memory;
 
-	//  上
 	if (x > 0 &&
 		grid_[x - 1][y].getType() != Type::empty &&
 		grid_[x - 1][y].getType() != grid_[x][y].getType()) {
 		life_value = 0;
-		recursion_judgeAliveOrDead(x - 1, y, &grid_memory, &life_value);
+		grid_memory = new vector<vector<bool>>(length_, vector<bool>(length_, false));
+		recursion_judgeAliveOrDead(x - 1, y, grid_memory, &life_value);
 		if (life_value == 0) {
 			recursion_removePiece(x - 1, y, grid_[x - 1][y].getType());
 		}
 	}
 
-	//  下
 	if (x < length_ - 1 &&
 		grid_[x + 1][y].getType() != Type::empty &&
 		grid_[x + 1][y].getType() != grid_[x][y].getType()) {
 		life_value = 0;
-		recursion_judgeAliveOrDead(x + 1, y, &grid_memory, &life_value);
+		grid_memory = new vector<vector<bool>>(length_, vector<bool>(length_, false));
+		recursion_judgeAliveOrDead(x + 1, y, grid_memory, &life_value);
 		if (life_value == 0) {
 			recursion_removePiece(x + 1, y, grid_[x + 1][y].getType());
 		}
 	}
 
-	//  左
 	if (y > 0 &&
 		grid_[x][y - 1].getType() != Type::empty &&
 		grid_[x][y - 1].getType() != grid_[x][y].getType()) {
 		life_value = 0;
-		recursion_judgeAliveOrDead(x, y - 1, &grid_memory, &life_value);
+		grid_memory = new vector<vector<bool>>(length_, vector<bool>(length_, false));
+		recursion_judgeAliveOrDead(x, y - 1, grid_memory, &life_value);
 		if (life_value == 0) {
-			recursion_removePiece(x, y - 1, grid_[x + 1][y].getType());
+			recursion_removePiece(x, y - 1, grid_[x][y - 1].getType());
 		}
 	}
 
-	//  右
 	if (y < length_ - 1 &&
 		grid_[x][y + 1].getType() != Type::empty &&
 		grid_[x][y + 1].getType() != grid_[x][y].getType()) {
 		life_value = 0;
-		recursion_judgeAliveOrDead(x, y + 1, &grid_memory, &life_value);
+		grid_memory = new vector<vector<bool>>(length_, vector<bool>(length_, false));
+		recursion_judgeAliveOrDead(x, y + 1, grid_memory, &life_value);
 		if (life_value == 0) {
-			recursion_removePiece(x, y + 1, grid_[x + 1][y].getType());
+			recursion_removePiece(x, y + 1, grid_[x][y + 1].getType());
 		}
 	}
 
-	return SUCCESS;
+	return SUCCESS_;
 }
-
-
 
 int Checkerboard::settlement() {
 	situationJudgment(2, 1, 2, 1);
-	return SUCCESS;
+	return SUCCESS_;
 }
 
 int Checkerboard::situationJudgment(uint8_t distance, uint8_t different,
@@ -311,7 +323,7 @@ int Checkerboard::situationJudgment(uint8_t distance, uint8_t different,
 		}
 	}
 
-	return SUCCESS;
+	return SUCCESS_;
 }
 
 void Checkerboard::recursion_setBelong(uint8_t x, uint8_t y, Type belong) {
@@ -362,8 +374,6 @@ void Checkerboard::recursion_removePiece(uint8_t x, uint8_t y, Type type) {
 	return;
 }
 
-
-
 void Checkerboard::recursion_judgeAliveOrDead(uint8_t x, uint8_t y, vector<vector<bool>>* grid_memory, uint8_t* life_value) {
 
 	if ((*grid_memory)[x][y] == true) {
@@ -388,7 +398,7 @@ void Checkerboard::recursion_judgeAliveOrDead(uint8_t x, uint8_t y, vector<vecto
 		// 没气
 	}
 	else {
-		cout << "something error" << endl;
+		cout << "something ERROR_" << endl;
 	};
 
 	// 下
@@ -405,11 +415,11 @@ void Checkerboard::recursion_judgeAliveOrDead(uint8_t x, uint8_t y, vector<vecto
 		// 没气
 	}
 	else {
-		cout << "something error" << endl;
+		cout << "something ERROR_" << endl;
 	};
 
 	// 左
-	if (y == 0) {
+	if (x == 0) {
 		// 没气
 	}
 	else if (grid_[x - 1][y].getType() == Type::empty) {
@@ -422,11 +432,11 @@ void Checkerboard::recursion_judgeAliveOrDead(uint8_t x, uint8_t y, vector<vecto
 		// 没气
 	}
 	else {
-		cout << "something error" << endl;
+		cout << "something ERROR_" << endl;
 	};
 
 	// 右
-	if (y == length_ - 1) {
+	if (x == length_ - 1) {
 		// 没气
 	}
 	else if (grid_[x + 1][y].getType() == Type::empty) {
@@ -439,7 +449,7 @@ void Checkerboard::recursion_judgeAliveOrDead(uint8_t x, uint8_t y, vector<vecto
 		// 没气
 	}
 	else {
-		cout << "something error" << endl;
+		cout << "something ERROR_" << endl;
 	};
 	return;
 }
@@ -452,7 +462,7 @@ Type Checkerboard::switchColor(Type color) {
 		return Type::black;
 	}
 	else {
-		cout << "something error" << endl;
+		cout << "something ERROR_" << endl;
 		return Type::empty;
 	}
 }
@@ -471,4 +481,9 @@ Type Checkerboard::getNowColor() {
 
 vector<vector<Point>> Checkerboard::getGrid() {
 	return grid_;
+}
+
+void Checkerboard::setGridPoint(int x,int y,position pos) {
+	// TODO : 判断越界
+	grid_[x][y].setPos(pos);
 }

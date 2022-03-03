@@ -141,9 +141,16 @@
   <ItemGroup>
     <ClCompile Include="Checkerboard.cpp" />
     <ClCompile Include="GoGame.cpp" />
+    <ClCompile Include="Point.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Checkerboard.h" />
+    <ClInclude Include="Const.h" />
+    <ClInclude Include="Point.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="GoGame.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
